@@ -21,7 +21,9 @@ from qgis.core import (
     QgsWkbTypes,
     QgsFeatureRequest,
     QgsCoordinateTransformContext,
+    QgsVectorLayer
 )
+from qgis import processing
 
 from .utilities import singlepartGeometries
 
@@ -230,9 +232,6 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     #TODO: docstring
     """
 
-    # Constants used to refer to parameters and outputs. They will be
-    # used when calling the algorithm from another algorithm, or when
-    # calling from the QGIS console.
     EXTENT = 'EXTENT'
     RESOLUTION = 'RESOLUTION'
     OUTPUT = 'OUTPUT'
@@ -319,94 +318,32 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
             QgsCoordinateReferenceSystem('EPSG:4326')
         )
 
-        resolution = self.parameterAsInt(
-            parameters,
-            self.RESOLUTION,
-            context
-        )
-
         # validate extent parameter
         if extent is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.EXTENT))
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.EXTENT)) #TODO: is this the correct error?
         elif extent.isGeosValid() is False:
             raise QgsProcessingException('Invalid input extent')
-
-        # validate resolution parameter
-        if resolution < 0 or resolution > 15:
-            raise QgsProcessingException('Invalid input resolution')
-
-        #############################
-        # Output parameters (sinks) #
-        #############################
-
-        # Set up output layer fields
-        indexField = QgsField(
-            name='index',
-            type=QVariant.String,
-            len=30,
-            comment='H3 index')
-        fields = QgsFields()
-        fields.append(indexField)
-
-
-        # create sink
-        (sink, dest_id) = self.parameterAsSink(
-            parameters,
-            self.OUTPUT,
-            context,
-            fields,
-            QgsWkbTypes.Polygon,
-            QgsCoordinateReferenceSystem('EPSG:4326')
-        )
-        # Raise error if sink not created
-        if sink is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
-
-        # Send some information to the user
-        #feedback.pushInfo('CRS is {}'.format(QgsCoordinateReferenceSystem('EPSG:4326')))
 
         ##############
         # Processing #
         ##############
 
-        #Get indeces H3 hexagons within extent
-        feedback.pushInfo('Looking up hexagons within extent...')
-        hexIndices = h3.polyfill(
-            json.loads(extent.asJson()),
-            resolution,
-            geo_json_conformant=True
+        # Construct temporary vector layer from the input extent
+        inputLayer = QgsVectorLayer('polygon?crs=epsg:4326', 'h3plugin_temp', 'memory')
+        feature = QgsFeature()
+        feature.setGeometry(extent)
+        inputLayer.dataProvider().addFeature(feature)
+
+        # Run "Create H3 grid within polygons"  with the temp layer as input
+        grid = processing.run(
+            'H3:createh3gridwithinpolygon',
+            {
+                'INPUT': inputLayer,
+                'RESOLUTION': parameters['RESOLUTION'],
+                'OUTPUT': parameters['OUTPUT'],
+            },
+            is_child_algorithm=True,
+            context=context,
+            feedback=feedback,
         )
-
-        # Set up template feature
-        feature = QgsFeature(fields)
-
-        # For the progress bar
-        progressPerHex = 100.0 / len(hexIndices) if len(hexIndices) > 0 else 0
-        currentProgress = 0
-        lastProgress = 0
-
-        feedback.pushInfo('Generating grid layer...')
-        for i, index in enumerate(hexIndices):
-            # create hex geometry
-            hexVertexCoords = h3.h3_to_geo_boundary(index)
-            hexGeometry = QgsGeometry.fromPolygonXY([[QgsPointXY(lon, lat) for lat, lon in hexVertexCoords], ])
-
-            # create hex feature, add to sink
-            feature.setGeometry(hexGeometry)
-            feature.setAttribute('index', index)
-            sink.addFeature(feature, QgsFeatureSink.FastInsert)
-
-            # check and report progress
-            currentProgress = int(i * progressPerHex)
-            if currentProgress != lastProgress:
-                lastProgress = currentProgress
-                feedback.setProgress(lastProgress)
-
-            # Stop if cancel button has been clicked
-            if feedback.isCanceled():
-                feedback.pushInfo('Processing canceled.')
-                break
-        else:
-            feedback.pushInfo('Done.')
-
-        return {self.OUTPUT: dest_id}
+        return {self.OUTPUT: grid['OUTPUT']}
