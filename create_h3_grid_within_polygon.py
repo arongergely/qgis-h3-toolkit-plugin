@@ -19,8 +19,10 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsWkbTypes,
     QgsFeatureRequest,
-    QgsCoordinateTransformContext
+    QgsCoordinateTransformContext,
 )
+
+from .utilities import singlepartGeometries
 
 
 class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
@@ -166,28 +168,13 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
             feedback.pushWarning('Input source is not in WGS84 projection. On the fly reprojection will be used.')
 
         # Look up H3 hexagons within source features
-        # TODO: make this lookup efficient:
-        #   - Look into using QgsJsonExporter instead of explicitly breaking up and parsing multipart geometries
-        #   - h3.polyfill should be able to handle multiple polygon features at once. Not the same as MultiPoligon!
-        #     (it can't handle that)
         feedback.pushInfo('Looking up hexagons...')
 
         hexIndexSet = set()
-        for f in source.getFeatures(request=featureRequestFilter):
-            geom = f.geometry()
-
-            # TODO: nasty if statement, revise
-            if geom.isMultipart():
-                for g in geom.asGeometryCollection():
-                    geoJsonDict = json.loads(g.asJson())
-
-                    newSet = h3.polyfill(geoJsonDict, resolution, geo_json_conformant=True)
-                    hexIndexSet = hexIndexSet.union(newSet)
-            else:
-                geoJsonDict = json.loads(geom.asJson())
-                newSet = h3.polyfill(geoJsonDict, resolution, geo_json_conformant=True)
-                hexIndexSet = hexIndexSet.union(newSet)
-
+        for geom in singlepartGeometries(source.getFeatures(request=featureRequestFilter)):
+            geoJsonDict = json.loads(geom.asJson())
+            newSet = h3.polyfill(geoJsonDict, resolution, geo_json_conformant=True)
+            hexIndexSet.update(newSet)
 
         # Set up template feature
         feature = QgsFeature(fields)
