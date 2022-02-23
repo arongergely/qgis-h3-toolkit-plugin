@@ -323,6 +323,9 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
             raise QgsProcessingException(self.invalidSourceError(parameters, self.EXTENT)) #TODO: is this the correct error?
         elif extent.isGeosValid() is False:
             raise QgsProcessingException('Invalid input extent')
+        bbox = extent.boundingBox()
+        if bbox.xMinimum() < -180 or bbox.xMaximum() > 180 or bbox.yMinimum() < -90 or bbox.yMaximum() > 90:
+            raise QgsProcessingException('Invalid input extent: Larger than WGS84 projection bounds')
 
         ##############
         # Processing #
