@@ -18,7 +18,8 @@ from qgis.core import (
     QgsFields,
     QgsCoordinateReferenceSystem,
     QgsWkbTypes,
-    QgsJsonExporter
+    QgsFeatureRequest,
+    QgsCoordinateTransformContext
 )
 
 
@@ -27,9 +28,6 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
     #TODO: docstring
     """
 
-    # Constants used to refer to parameters and outputs. They will be
-    # used when calling the algorithm from another algorithm, or when
-    # calling from the QGIS console.
     INPUT = 'INPUT'
     RESOLUTION = 'RESOLUTION'
     OUTPUT = 'OUTPUT'
@@ -140,7 +138,6 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
         fields = QgsFields()
         fields.append(indexField)
 
-
         # create sink
         (sink, dest_id) = self.parameterAsSink(
             parameters,
@@ -154,24 +151,29 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
-        # Send some information to the user
-        #feedback.pushInfo('CRS is {}'.format(QgsCoordinateReferenceSystem('EPSG:4326')))
-
         ##############
         # Processing #
         ##############
 
-        #pre-processing input
-        crs = source.sourceCrs()
+        # If source is not in WGS84, set up the feature request filter to reproject source features on the fly
+        featureRequestFilter = QgsFeatureRequest().setDestinationCrs(
+            QgsCoordinateReferenceSystem('EPSG:4326'),
+            QgsCoordinateTransformContext()
+        )
 
-        # Get indeces H3 hexagons within extent
+        # warn user if reprojection is necessary
+        if source.sourceCrs() != featureRequestFilter.destinationCrs():
+            feedback.pushWarning('Input source is not in WGS84 projection. On the fly reprojection will be used.')
+
+        # Look up H3 hexagons within source features
         # TODO: make this lookup efficient:
         #   - Look into using QgsJsonExporter instead of explicitly breaking up and parsing multipart geometries
         #   - h3.polyfill should be able to handle multiple polygon features at once. Not the same as MultiPoligon!
         #     (it can't handle that)
         feedback.pushInfo('Looking up hexagons...')
+
         hexIndexSet = set()
-        for f in source.getFeatures():
+        for f in source.getFeatures(request=featureRequestFilter):
             geom = f.geometry()
 
             # TODO: nasty if statement, revise
