@@ -167,8 +167,10 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
         if source.sourceCrs() != featureRequestFilter.destinationCrs():
             feedback.pushWarning('Input source is not in WGS84 projection. On the fly reprojection will be used.')
 
-        # Look up H3 hexagons within source features
-        feedback.pushInfo('Looking up hexagons...')
+        # -------------------------------------------------------------
+        # STEP 1: Find indexes of hexagons cells within source features
+        # -------------------------------------------------------------
+        feedback.pushInfo('Looking up grid cell indexes...')
 
         hexIndexSet = set()
         for geom in singlepartGeometries(source.getFeatures(request=featureRequestFilter)):
@@ -176,15 +178,26 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
             newSet = h3.polyfill(geoJsonDict, resolution, geo_json_conformant=True)
             hexIndexSet.update(newSet)
 
-        # Set up template feature
-        feature = QgsFeature(fields)
+            # Stop if cancel button has been clicked
+            if feedback.isCanceled():
+                feedback.pushInfo('Processing canceled.')
+                break
+        else:
+            feedback.pushInfo(f'{len(hexIndexSet)} grid cells to create.')
+
+        # -----------------------------------------
+        # STEP 2. Generate the grid cell geometries
+        # -----------------------------------------
+        feedback.pushInfo('Generating grid cells...')
 
         # For the progress bar
         progressPerHex = 100.0 / len(hexIndexSet) if len(hexIndexSet) > 0 else 0
         currentProgress = 0
         lastProgress = 0
 
-        feedback.pushInfo('Generating grid layer...')
+        # Set up template feature
+        feature = QgsFeature(fields)
+
         for i, index in enumerate(hexIndexSet):
             # create hex geometry
             hexVertexCoords = h3.h3_to_geo_boundary(index)
