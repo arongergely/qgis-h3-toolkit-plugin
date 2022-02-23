@@ -13,7 +13,7 @@ import os
 from qgis.core import QgsApplication
 from PyQt5.QtWidgets import QAction, QMessageBox
 
-from .provider import H3Provider
+from .processing.provider import H3Provider
 
 
 def classFactory(iface):
