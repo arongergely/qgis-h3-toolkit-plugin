@@ -1,8 +1,11 @@
 from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
-from .create_h3_grid import CreateH3GridProcessingAlgorithm
-from .create_h3_grid_within_polygon import CreateH3GridWithinPolygonProcessingAlgorithm
+from .algorithms import (
+    CreateH3GridProcessingAlgorithm,
+    CreateH3GridWithinPolygonProcessingAlgorithm
+)
+
 
 class H3Provider(QgsProcessingProvider):
     def loadAlgorithms(self, *args, **kwargs):
