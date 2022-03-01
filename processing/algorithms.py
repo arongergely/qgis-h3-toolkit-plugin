@@ -1,6 +1,6 @@
 import json
 
-import h3  # TODO: review any benefits of h3.api.memview_int
+import h3
 
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (
@@ -28,9 +28,14 @@ from qgis import processing
 from .utilities import singlepartGeometries
 
 
-class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
+class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
     """
-    #TODO: docstring
+    Processing algorithm to create an H3 grid inside polygons.
+    Takes vector layer and resolution as inputs.
+    Evaluates H3 grid cells at given resolutions inside polygons of input layer.
+    Cells are considered to be 'inside' if their centroid is contained by a polygon.
+    Generates the grid cells as polygons with their H3 index in the attribute table.
+    Outputs result as a polygon vector layer.
     """
 
     INPUT = 'INPUT'
@@ -44,16 +49,28 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
-        return CreateH3GridWithinPolygonProcessingAlgorithm()
+        return CreateH3GridInsidePolygonsProcessingAlgorithm()
 
     def name(self):
-        return 'createh3gridwithinpolygon'
+        return 'createh3gridinsidepolygons'
 
     def displayName(self):
-        return self.tr('Create H3 grid within polygon')
+        return self.tr('Create H3 grid inside polygons')
+
+    #def group(self):
+    #    return self.tr('Grid Creation')
+
+    #def groupId(self):
+    #    return 'gridcreation'
 
     def shortHelpString(self):
-        return self.tr('Creates a H3 grid at specific resolution, within Polygon layer')
+        helpString = (  # odd multiline string definition to prevent unintentional newline chars
+            'Creates a vector layer with an H3 grid at given resolution.'
+            'The grid cells are generated as polygons, with their H3 index stored in the attribute table.\n'
+            'This algorithm only generates grid cells that are inside the polygons of input layer. '
+            'A grid cells is considered to be <i>inside</i> if its centroid is contained by a polygon.'
+        )
+        return self.tr(helpString)
 
     # TODO set up help button url
     # def helpUrl(self):
@@ -77,26 +94,78 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
 
         resolutionParam.setHelp(
             '''
-            The resolution of the grid, as defined in the H3 standard.
-            <br><br>
-            Average hexagon edge length at each H3 resolution: 
-            <br><br>
-            0: 1,107.71259100 km<br>
-            1: 418.676005500 km<br>
-            2: 158.244655800 km<br>
-            3: 59.810857940 km<br>
-            4: 22.606379400 km<br>
-            5: 8.544408276 km<br>
-            6: 3.229482772 km<br>
-            7: 1.220629759 km<br>
-            8: 0.461354684 km<br>
-            9: 0.174375668 km<br>
-            10: 0.065907807 km<br>
-            11: 0.024910561 km<br>
-            12: 0.009415526 km<br>
-            13: 0.003559893 km<br>
-            14: 0.001348575 km<br>
-            15: 0.000509713 km<br>
+            The resolution level of the grid, as defined in the H3 standard.
+            <br>
+            <table>
+              <tr>
+                <th>Resolution<br>Level</th>
+                <th>Avg. Hexagon<br>Edge Length</th>
+              </tr>
+              <tr>
+                <td style="text-align: center">0</td>
+                <td style="text-align: center">1107.71 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">1</td>
+                <td style="text-align: center">418.68 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">2</td>
+                <td style="text-align: center">158.24 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">3</td>
+                <td style="text-align: center">59.81 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">4</td>
+                <td style="text-align: center">22.61 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">5</td>
+                <td style="text-align: center">8.54 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">6</td>
+                <td style="text-align: center">3.23 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">7</td>
+                <td style="text-align: center">1.22 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">8</td>
+                <td style="text-align: center">461.35 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">9</td>
+                <td style="text-align: center">174.38 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">10</td>
+                <td style="text-align: center">65.91 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">11</td>
+                <td style="text-align: center">24.91 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">12</td>
+                <td style="text-align: center">9.42 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">13</td>
+                <td style="text-align: center">3.56 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">14</td>
+                <td style="text-align: center">1.35 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">15</td>
+                <td style="text-align: center">0.51 m</td>
+              </tr>
+            </table>
             '''
         )
         outputParam = QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr('Output layer'))
@@ -229,7 +298,16 @@ class CreateH3GridWithinPolygonProcessingAlgorithm(QgsProcessingAlgorithm):
 
 class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     """
-    #TODO: docstring
+    Processing algorithm to create an H3 grid inside an extent.
+    Takes extent and resolution as inputs. Creates an in-memory polygon vector layer from the extent, then
+    calls `CreateH3GridInsidePolygonsProcessingAlgorithm` as child algorithm with the in-memory layer
+    and the resolution as inputs.
+
+    Outputs the child algorithm's output.
+
+    Note:
+    Child algorithm carries out the actual processing;
+    see `CreateH3GridInsidePolygonsProcessingAlgorithm` for details
     """
 
     EXTENT = 'EXTENT'
@@ -258,16 +336,18 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     #    return 'gridcreation'
 
     def shortHelpString(self):
-        return self.tr('Creates a H3 grid at specific resolution')
+        helpString = (  # odd multiline string definition to prevent unintentional newline chars
+            'Creates a vector layer with an H3 grid at given resolution.'
+            'The grid cells are generated as polygons, with their H3 index stored in the attribute table.'
+        )
+        return self.tr(helpString)
 
     # TODO set up help button url
     # def helpUrl(self):
     #    return
 
     def initAlgorithm(self, config=None):
-
         extentParam = QgsProcessingParameterExtent(self.EXTENT, self.tr('Extent'))
-
         resolutionParam = QgsProcessingParameterNumber(
                 self.RESOLUTION,
                 self.tr('Resolution'),
@@ -278,26 +358,78 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
 
         resolutionParam.setHelp(
             '''
-            The resolution of the grid, as defined in the H3 standard.
-            <br><br>
-            Average hexagon edge length at each H3 resolution: 
-            <br><br>
-            0: 1,107.71259100 km<br>
-            1: 418.676005500 km<br>
-            2: 158.244655800 km<br>
-            3: 59.810857940 km<br>
-            4: 22.606379400 km<br>
-            5: 8.544408276 km<br>
-            6: 3.229482772 km<br>
-            7: 1.220629759 km<br>
-            8: 0.461354684 km<br>
-            9: 0.174375668 km<br>
-            10: 0.065907807 km<br>
-            11: 0.024910561 km<br>
-            12: 0.009415526 km<br>
-            13: 0.003559893 km<br>
-            14: 0.001348575 km<br>
-            15: 0.000509713 km<br>
+            The resolution level of the grid, as defined in the H3 standard.
+            <br>
+            <table>
+              <tr>
+                <th>Resolution<br>Level</th>
+                <th>Avg. Hexagon<br>Edge Length</th>
+              </tr>
+              <tr>
+                <td style="text-align: center">0</td>
+                <td style="text-align: center">1107.71 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">1</td>
+                <td style="text-align: center">418.68 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">2</td>
+                <td style="text-align: center">158.24 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">3</td>
+                <td style="text-align: center">59.81 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">4</td>
+                <td style="text-align: center">22.61 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">5</td>
+                <td style="text-align: center">8.54 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">6</td>
+                <td style="text-align: center">3.23 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">7</td>
+                <td style="text-align: center">1.22 km</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">8</td>
+                <td style="text-align: center">461.35 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">9</td>
+                <td style="text-align: center">174.38 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">10</td>
+                <td style="text-align: center">65.91 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">11</td>
+                <td style="text-align: center">24.91 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">12</td>
+                <td style="text-align: center">9.42 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">13</td>
+                <td style="text-align: center">3.56 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">14</td>
+                <td style="text-align: center">1.35 m</td>
+              </tr>
+              <tr>
+                <td style="text-align: center">15</td>
+                <td style="text-align: center">0.51 m</td>
+              </tr>
+            </table>
             '''
         )
         outputParam = QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr('Output layer'))
@@ -339,7 +471,7 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
 
         # Run "Create H3 grid within polygons"  with the temp layer as input
         grid = processing.run(
-            'H3:createh3gridwithinpolygon',
+            'h3:createh3gridinsidepolygons',
             {
                 'INPUT': inputLayer,
                 'RESOLUTION': parameters['RESOLUTION'],
