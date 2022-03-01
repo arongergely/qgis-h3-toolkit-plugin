@@ -4,6 +4,7 @@ from qgis.core import (
     QgsGeometry,
     QgsFeatureIterator
 )
+import h3
 
 
 def singlepartGeometries(featureIterator: QgsFeatureIterator) -> Iterator[QgsGeometry]:
@@ -18,3 +19,6 @@ def singlepartGeometries(featureIterator: QgsFeatureIterator) -> Iterator[QgsGeo
                 yield part
         else:
             yield geom
+
+def getVersionH3Bindings():
+    return h3.versions()
