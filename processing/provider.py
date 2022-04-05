@@ -1,3 +1,5 @@
+import os
+
 from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
@@ -21,4 +23,4 @@ class H3Provider(QgsProcessingProvider):
         return 'H3'
 
     def icon(self):
-        return QIcon()#QIcon(os.path.join(os.path.dirname(__file__), 'h3_logo.svg'))
+        return QIcon(os.path.join(os.path.dirname(__file__), '../h3_logo.svg'))

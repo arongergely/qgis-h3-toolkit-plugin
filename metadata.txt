@@ -8,3 +8,4 @@ author=Aron Gergely
 email=Email
 repository=URL to the code repository
 hasProcessingProvider=yes
+icon=h3_logo.svg
