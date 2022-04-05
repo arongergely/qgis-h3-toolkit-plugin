@@ -25,13 +25,13 @@ else:
     pass
 
 def classFactory(iface):
-    return H3Toolbox(iface)
+    return H3Toolkit(iface)
 
 
 H3InstallHelperDialog = uic.loadUi(os.path.join(os.path.dirname(__file__), 'h3InstallHelperDialog.ui'))
 
-class H3Toolbox:
-    pluginName = 'H3 Toolbox'
+class H3Toolkit:
+    pluginName = 'H3 Toolkit'
 
     def __init__(self, iface, is_h3lib_present=IS_H3_PRESENT):
         self.iface = iface

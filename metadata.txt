@@ -1,6 +1,6 @@
 [general]
-name=H3 Toolbox
-description=H3 Toolbox
+name=H3 Toolkit
+description=H3 Toolkit
 about=About this plugin
 version=0.1
 qgisMinimumVersion=3.22
