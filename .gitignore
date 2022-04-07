@@ -1,5 +1,8 @@
-#Python
+# Python
 __pycache__/
 
-#PyCharm project files
+# PyCharm project files
 .idea/
+
+# Other files/folders
+/h3_toolkit_plugin.zip
