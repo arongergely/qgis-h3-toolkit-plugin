@@ -5,7 +5,9 @@
 
 
 ## How to Install
-Plugin is not available in the official QGIS plugin repository (yet! I am working on it). Until that happens you can download a zipped release from here and [install from ZIP](https://docs.qgis.org/3.22/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab)
+Plugin is not available in the official QGIS plugin repository (yet! I am working on it). Until that happens it can be installed via zipfile:
+1. Download a zipped release from the [releases](https://github.com/arongergely/qgis-h3-toolkit-plugin/releases) 
+2. Proceed to [Install from ZIP](https://docs.qgis.org/3.22/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab) in QGIS
 
 #### Installing the `h3` dependency
 *TL;DR If you are familiar with Python, this is straighforward via `pip` or `conda`. This is the way to go, for now - I am working to improve the install experience for everyone.*
