@@ -20,5 +20,6 @@ def singlepartGeometries(featureIterator: QgsFeatureIterator) -> Iterator[QgsGeo
         else:
             yield geom
 
+
 def getVersionH3Bindings():
     return h3.versions()

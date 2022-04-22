@@ -11,9 +11,9 @@
 import os
 
 from qgis.core import Qgis, QgsApplication
-from PyQt5 import uic
 from PyQt5.QtWidgets import QAction, QMessageBox, QPushButton
 
+# Check if h3 dependency is installed, handle gracefully if not
 from .h3_dependency_guard import IS_H3_PRESENT
 
 if IS_H3_PRESENT:
@@ -45,6 +45,7 @@ class H3Toolkit:
         if self.isH3LibPresent:
             self.initProcessing()
         else:
+            # Handle gracefully if h3 is not installed
             widget = self.iface.messageBar().createMessage(
                 f'{self.pluginName} plugin',
                 'H3 library not found. Click on "Help Me Install" for help'
@@ -70,10 +71,6 @@ class H3Toolkit:
         self.installHelpAction.triggered.connect(self.installHelpWindow)
 
     def unload(self):
-        # disconnect signals
-        #self.aboutAction.triggered.disconnect()
-        #self.installHelpAction.triggered.disconnect()
-
         QgsApplication.processingRegistry().removeProvider(self.provider)
         self.iface.removePluginMenu(f'{self.pluginName} Plugin', self.aboutAction)
         self.iface.removePluginMenu(f'{self.pluginName} Plugin', self.installHelpAction)

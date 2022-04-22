@@ -13,8 +13,6 @@ class H3Provider(QgsProcessingProvider):
     def loadAlgorithms(self, *args, **kwargs):
         self.addAlgorithm(CreateH3GridProcessingAlgorithm())
         self.addAlgorithm(CreateH3GridInsidePolygonsProcessingAlgorithm())
-        # add additional algorithms here
-        # self.addAlgorithm(MyOtherAlgorithm())
 
     def id(self, *args, **kwargs):
         return 'h3'
