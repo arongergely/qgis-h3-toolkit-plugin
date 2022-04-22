@@ -9,8 +9,6 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 import os
-import subprocess
-import sys
 
 from qgis.core import Qgis, QgsApplication
 from PyQt5 import uic
@@ -24,11 +22,10 @@ if IS_H3_PRESENT:
 else:
     pass
 
+
 def classFactory(iface):
     return H3Toolkit(iface)
 
-
-H3InstallHelperDialog = uic.loadUi(os.path.join(os.path.dirname(__file__), 'h3InstallHelperDialog.ui'))
 
 class H3Toolkit:
     pluginName = 'H3 Toolkit'
@@ -106,22 +103,22 @@ class H3Toolkit:
         QMessageBox.information(self.iface.mainWindow(), windowTitle, aboutString)
 
     def installHelpWindow(self):
-        def setsometext():
-            commandOutput = None
-            statusMessage = '<b><font color=\"Green\">Successfully ran the install command. Please restart QGIS (or deactivate/activate the plugin) to finish setup.</font></b>'
-            try:
-                outputBytes = subprocess.check_output(
-                    (sys.executable, '-m', 'pip', 'install', 'h3<=3.99'),
-                    stderr=subprocess.STDOUT
-                )
-                commandOutput = outputBytes.decode('utf-8')
-            except subprocess.CalledProcessError as e:
-                outputUtf8 = e.output.decode('utf-8')
-                commandOutput = f'ERROR: return code "{e.returncode}"\n{outputUtf8}'
-                statusMessage = '<b><font color=\"Red\">An error occured.</font></b>'
+        windowTitle = 'H3 Library Install Help'
+        helpString = '''
+            <p>
+              To start using the plugin you have to install the H3 Library for Python (<a href="https://h3geo.org/">https://h3geo.org/</a>).<br><br>
+              It is available as the Python package 'h3', which has to be installed into the Python environment of QGIS.
+            </p>
+            <p>
+              Please refer to the H3 documentation on how to install: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a>
+            </p>
+            <p>
+              <b>NOTE: The plugin is tested with h3 version the 3.7.x. However it should work with all 3.x versions of h3</b>
+            </p>
+            <p>
+              Once the package install completed, please  reload the plugin (or restart QGIS) to start using it.<br><br>
+              Enjoy!
+            </p>
+            '''
 
-            H3InstallHelperDialog.textEdit.setText(commandOutput)
-            H3InstallHelperDialog.labelStatus.setText(statusMessage)
-
-        H3InstallHelperDialog.pushButton.clicked.connect(setsometext)
-        return H3InstallHelperDialog.exec()
+        QMessageBox.information(self.iface.mainWindow(), windowTitle, helpString)
