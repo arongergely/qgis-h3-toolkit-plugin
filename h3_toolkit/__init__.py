@@ -94,6 +94,13 @@ class H3Toolkit:
               C (core): {libversions['c']}<br>
               Python bindings: {libversions['python']}
             </p>
+            <hr/>
+            <p>
+              H3 Library © 2022 Uber Technologies, Inc. Licensed under Apache 2.0
+            </p>
+            <p>
+              <a href="https://h3geo.org/">https://h3geo.org/</a>
+            </p>
             '''
 
         QMessageBox.information(self.iface.mainWindow(), windowTitle, aboutString)
