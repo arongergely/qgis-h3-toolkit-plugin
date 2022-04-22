@@ -1,11 +1,20 @@
 [general]
 name=H3 Toolkit
-description=H3 Toolkit
-about=About this plugin
-version=0.1
+description=Tools for the H3 discrete global grid system.
+about=This plugin adds an H3 processing provider to QGIS, with tools that let users create H3 grids. These tools are powered by the open source H3 library (<a href="https://h3geo.org/">https://h3geo.org/</a>)
+    NOTE: The official H3 Library ('h3' Python package) is not shipped with this plugin and has to be installed separately. The plugin detects if the package is missing and offers basic guidance on how to install.
+tags=H3, hexagon, grid, grids
+
+version=0.1.0
 qgisMinimumVersion=3.22
+qgisMaximumVersion=3.99
+
 author=Aron Gergely
-email=Email
-repository=URL to the code repository
+
+email=aron.gergely@rasterra.nl
+repository=https://github.com/arongergely/qgis-h3-toolkit-plugin
+tracker=https://github.com/arongergely/qgis-h3-toolkit-plugin/issues
+
 hasProcessingProvider=yes
 icon=h3_logo.svg
+experimental=False
