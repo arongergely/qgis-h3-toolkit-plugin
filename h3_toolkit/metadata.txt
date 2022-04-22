@@ -5,7 +5,7 @@ about=This plugin adds an H3 processing provider to QGIS, with tools that let us
     NOTE: The official H3 Library ('h3' Python package) is not shipped with this plugin and has to be installed separately. The plugin detects if the package is missing and offers basic guidance on how to install.
 tags=H3, hexagon, grid, grids
 
-version=0.1.0
+version=0.1.0-rc1
 qgisMinimumVersion=3.22
 qgisMaximumVersion=3.99
 
