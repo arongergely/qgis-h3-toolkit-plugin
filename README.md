@@ -1,5 +1,5 @@
 # H3 Toolkit Plugin for QGIS
-🌐 Brings the H3 discrete global grid system to [QGIS](https://qgis.org/ru/site/). 
+🌐 Brings the H3 discrete global grid system to [QGIS](https://qgis.org/). 
 
 🚀 Powered by the open source [H3 library](https://h3geo.org/)
 
