@@ -65,10 +65,14 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
 
     def shortHelpString(self):
         helpString = (  # odd multiline string definition to prevent unintentional newline chars
-            'Creates a vector layer with an H3 grid at given resolution.'
+            'Creates a vector layer with an H3 grid at given resolution. '
             'The grid cells are generated as polygons, with their H3 index stored in the attribute table.\n'
             'This algorithm only generates grid cells that are inside the polygons of input layer. '
-            'A grid cells is considered to be <i>inside</i> if its centroid is contained by a polygon.'
+            'A grid cells is considered to be <i>inside</i> if its centroid is contained by a polygon.\n'
+            '<i>Note: Input polygons are evaluated in WGS84 (EPSG:4326) by the algorithm, '
+            'reprojecting them if necessary. '
+            'It may produce erratic results for polygons that cross the WGS84 CRS boundary. '
+            '(e.g. in polar regions or around the 180th meridian)</i>'
         )
         return self.tr(helpString)
 
@@ -337,8 +341,13 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
 
     def shortHelpString(self):
         helpString = (  # odd multiline string definition to prevent unintentional newline chars
-            'Creates a vector layer with an H3 grid at given resolution.'
-            'The grid cells are generated as polygons, with their H3 index stored in the attribute table.'
+            'Creates a vector layer with an H3 grid at given resolution. '
+            'The grid cells are generated as polygons, with their H3 index stored in the attribute table.\n'
+            'This algorithm only generates grid cells inside given extent. '
+            'A grid cells is considered to be <i>inside</i> if its centroid is within the extent.\n'
+            '<i>Note: The extent is evaluated in WGS84 (EPSG:4326) by the algorithm, reprojecting it if necessary. '
+            'It may produce erratic results for extents that cross the WGS84 CRS boundary. '
+            '(e.g. in polar regions or around the 180th meridian)</i>'
         )
         return self.tr(helpString)
 
