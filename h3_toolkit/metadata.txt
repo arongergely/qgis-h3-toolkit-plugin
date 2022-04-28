@@ -12,6 +12,7 @@ qgisMaximumVersion=3.99
 author=Aron Gergely
 
 email=aron.gergely@rasterra.nl
+homepage=https://github.com/arongergely/qgis-h3-toolkit-plugin
 repository=https://github.com/arongergely/qgis-h3-toolkit-plugin
 tracker=https://github.com/arongergely/qgis-h3-toolkit-plugin/issues
 
