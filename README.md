@@ -5,12 +5,14 @@
 
 
 ## How to Install
-Plugin is not available in the official QGIS plugin repository (yet! I am working on it). Until that happens it can be installed via zipfile:
-1. Download a zipped release from the [releases](https://github.com/arongergely/qgis-h3-toolkit-plugin/releases) 
-2. Proceed to [Install from ZIP](https://docs.qgis.org/3.22/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab) in QGIS
+Browse and install via the plugin manager of QGIS (Recommended). Look for "[H3 Toolkit](https://plugins.qgis.org/plugins/h3_toolkit/)".
 
-#### Installing the `h3` dependency
-*TL;DR If you are familiar with Python, this is straighforward via `pip` or `conda`. This is the way to go, for now - I am working to improve the install experience for everyone.*
+You can also install via zipfile (If you need for some reason):
+  1. Download a zipped release from the [releases](https://github.com/arongergely/qgis-h3-toolkit-plugin/releases)
+  2. Proceed to [Install from ZIP](https://docs.qgis.org/3.22/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab) in QGIS
+
+### Installing the `h3` dependency
+*TL;DR If you are familiar with Python, this is straightforward via `pip` or `conda`. This is the way to go, for now - I am working to improve the install experience for everyone.*
 
 
 The plugin depends on the `h3` python package, which you would have to install yourself into the Python environment of QGIS.
@@ -21,14 +23,14 @@ At startup the plugin detects if `h3` is missing from the python environment and
 Please see [H3 Installation](https://h3geo.org/docs/installation) on how to install.
 
 ## How to use
-A plugin registers an `H3` processing provider, the tools are available there.
-Please have a look at the tool's help texts regarding specifics.
+The plugin registers an `H3` processing provider, tools are available there.
+Please have a look at a tool's help text regarding specific usage.
 
 #### Suggesting improvements / reporting issues
 You are most welcome to post suggestions/issues on the [Issues page](https://github.com/arongergely/qgis-h3-toolkit-plugin/issues).
 
 ## Developer setup
-Assuming a Linux developer environment:
+Assuming a Linux development environment:
 1. clone this repository
 2. Create a symbolic link in the plugin folder within your QGIS profile directory:
    
