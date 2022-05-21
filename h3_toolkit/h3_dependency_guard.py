@@ -1,12 +1,11 @@
-def _isH3Present():
-    try:
-        # not best practice. TODO: check with pkg_resources module instead and install via
-        #                          pip + subprocess + sys.executable?
-        # import pkg_resources
-        import h3
-    except ImportError:
-        return False
+from importlib.util import find_spec
 
-    return True
+def _isModuleImportable(module_name):
+    """Verify whether or not a module can be imported."""
+    
+    module_spec = find_spec(module_name)
+    
+    return bool(module_spec)
 
-IS_H3_PRESENT = _isH3Present()
+
+IS_H3_PRESENT = _isModuleImportable("h3")
