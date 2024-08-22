@@ -1,6 +1,7 @@
 import json
 
 import h3
+import mercantile
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (
     QgsFeatureSink,
@@ -23,6 +24,7 @@ from qgis.core import (
     QgsCoordinateTransformContext,
     QgsVectorLayer,
     QgsProject,
+    QgsRectangle,  # Add this line
 )
 from qgis import processing
 
@@ -726,5 +728,82 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
             feature.setGeometry(hexGeometry)
             feature.setAttributes([k, v])
             sink.addFeature(feature, QgsFeatureSink.FastInsert)
+
+        return {self.OUTPUT: dest_id}
+
+
+class CreateQuadkeyGridProcessingAlgorithm(QgsProcessingAlgorithm):
+    """
+    Processing algorithm to create a Quadkey grid inside an extent.
+    Takes extent and zoom level as inputs. Creates a polygon vector layer with quadkey grid cells.
+    """
+
+    EXTENT = 'EXTENT'
+    ZOOM_LEVEL = 'ZOOM_LEVEL'
+    OUTPUT = 'OUTPUT'
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return CreateQuadkeyGridProcessingAlgorithm()
+
+    def name(self):
+        return 'createquadkeygrid'
+
+    def displayName(self):
+        return self.tr('Create Quadkey grid')
+
+    def shortHelpString(self):
+        return self.tr('Creates a vector layer with a Quadkey grid at given zoom level. '
+                       'The grid cells are generated as polygons, with their Quadkey stored in the attribute table.')
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(QgsProcessingParameterExtent(self.EXTENT, self.tr('Extent')))
+        self.addParameter(QgsProcessingParameterNumber(
+            self.ZOOM_LEVEL,
+            self.tr('Zoom Level'),
+            type=QgsProcessingParameterNumber.Integer,
+            minValue=0,
+            maxValue=23
+        ))
+        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+        extent = self.parameterAsExtentGeometry(parameters, self.EXTENT, context, QgsCoordinateReferenceSystem('EPSG:4326'))
+        zoom_level = self.parameterAsInt(parameters, self.ZOOM_LEVEL, context)
+
+        fields = QgsFields()
+        fields.append(QgsField('quadkey', QVariant.String))
+
+        (sink, dest_id) = self.parameterAsSink(
+            parameters, self.OUTPUT, context, fields, QgsWkbTypes.Polygon, QgsCoordinateReferenceSystem('EPSG:4326')
+        )
+
+        if sink is None:
+            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
+
+        bbox = extent.boundingBox()
+        west, south, east, north = bbox.xMinimum(), bbox.yMinimum(), bbox.xMaximum(), bbox.yMaximum()
+
+        tiles = list(mercantile.tiles(west, south, east, north, zoom_level))
+        total = 100.0 / len(tiles) if tiles else 0
+
+        for current, tile in enumerate(tiles):
+            if feedback.isCanceled():
+                break
+
+            quadkey = mercantile.quadkey(tile)
+            bounds = mercantile.bounds(tile)
+            
+            rect = QgsRectangle(bounds.west, bounds.south, bounds.east, bounds.north)
+            geometry = QgsGeometry.fromRect(rect)
+
+            f = QgsFeature()
+            f.setGeometry(geometry)
+            f.setAttributes([quadkey])
+            sink.addFeature(f, QgsFeatureSink.FastInsert)
+
+            feedback.setProgress(int(current * total))
 
         return {self.OUTPUT: dest_id}

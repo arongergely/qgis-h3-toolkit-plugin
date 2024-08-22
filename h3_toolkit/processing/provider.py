@@ -6,7 +6,8 @@ from qgis.PyQt.QtGui import QIcon
 from .algorithms import (
     CreateH3GridProcessingAlgorithm,
     CreateH3GridInsidePolygonsProcessingAlgorithm,
-    CountPointsOnH3GridProcessingAlgorithm
+    CountPointsOnH3GridProcessingAlgorithm,
+    CreateQuadkeyGridProcessingAlgorithm
 )
 
 
@@ -15,6 +16,7 @@ class H3Provider(QgsProcessingProvider):
         self.addAlgorithm(CreateH3GridProcessingAlgorithm())
         self.addAlgorithm(CreateH3GridInsidePolygonsProcessingAlgorithm())
         self.addAlgorithm(CountPointsOnH3GridProcessingAlgorithm())
+        self.addAlgorithm(CreateQuadkeyGridProcessingAlgorithm())
 
     def id(self, *args, **kwargs):
         return 'h3'
