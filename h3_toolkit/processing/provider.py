@@ -7,7 +7,8 @@ from .algorithms import (
     CreateH3GridProcessingAlgorithm,
     CreateH3GridInsidePolygonsProcessingAlgorithm,
     CountPointsOnH3GridProcessingAlgorithm,
-    CreateQuadkeyGridProcessingAlgorithm
+    CreateQuadkeyGridProcessingAlgorithm,
+    CreateQuadkeyGridInsidePolygonsProcessingAlgorithm
 )
 
 
@@ -17,6 +18,7 @@ class H3Provider(QgsProcessingProvider):
         self.addAlgorithm(CreateH3GridInsidePolygonsProcessingAlgorithm())
         self.addAlgorithm(CountPointsOnH3GridProcessingAlgorithm())
         self.addAlgorithm(CreateQuadkeyGridProcessingAlgorithm())
+        self.addAlgorithm(CreateQuadkeyGridInsidePolygonsProcessingAlgorithm())
 
     def id(self, *args, **kwargs):
         return 'h3'

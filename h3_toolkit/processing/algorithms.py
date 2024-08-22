@@ -24,7 +24,7 @@ from qgis.core import (
     QgsCoordinateTransformContext,
     QgsVectorLayer,
     QgsProject,
-    QgsRectangle,  # Add this line
+    QgsRectangle,
 )
 from qgis import processing
 
@@ -60,12 +60,6 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
     def displayName(self):
         return self.tr('Create H3 grid inside polygons')
 
-    #def group(self):
-    #    return self.tr('Grid Creation')
-
-    #def groupId(self):
-    #    return 'gridcreation'
-
     def shortHelpString(self):
         helpString = (  # odd multiline string definition to prevent unintentional newline chars
             'Creates a vector layer with an H3 grid at given resolution. '
@@ -78,10 +72,6 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
             '(e.g. in polar regions or around the 180th meridian)</i>'
         )
         return self.tr(helpString)
-
-    # TODO set up help button url
-    # def helpUrl(self):
-    #    return
 
     def initAlgorithm(self, config=None):
 
@@ -336,12 +326,6 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     def displayName(self):
         return self.tr('Create H3 grid')
 
-    #def group(self):
-    #    return self.tr('Grid Creation')
-
-    #def groupId(self):
-    #    return 'gridcreation'
-
     def shortHelpString(self):
         helpString = (  # odd multiline string definition to prevent unintentional newline chars
             'Creates a vector layer with an H3 grid at given resolution. '
@@ -353,10 +337,6 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
             '(e.g. in polar regions or around the 180th meridian)</i>'
         )
         return self.tr(helpString)
-
-    # TODO set up help button url
-    # def helpUrl(self):
-    #    return
 
     def initAlgorithm(self, config=None):
         extentParam = QgsProcessingParameterExtent(self.EXTENT, self.tr('Extent'))
@@ -528,12 +508,6 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     def displayName(self):
         return self.tr('Count points on H3 Grid')
 
-    # def group(self):
-    #    return self.tr('Grid Creation')
-
-    # def groupId(self):
-    #    return 'gridcreation'
-
     def shortHelpString(self):
         helpString = (  # odd multiline string definition to prevent unintentional newline chars
             'Counts point features within H3 grid cells at given resolution. '
@@ -542,12 +516,7 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
         )
         return self.tr(helpString)
 
-    # TODO set up help button url
-    # def helpUrl(self):
-    #    return
-
     def initAlgorithm(self, config=None):
-        #extentParam = QgsProcessingParameterExtent(self.EXTENT, self.tr('Extent'))
         pointlayerParam = QgsProcessingParameterFeatureSource(
             self.INPUT,
             self.tr('Input point layer'),
@@ -728,6 +697,216 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
             feature.setGeometry(hexGeometry)
             feature.setAttributes([k, v])
             sink.addFeature(feature, QgsFeatureSink.FastInsert)
+
+        return {self.OUTPUT: dest_id}
+
+
+class CreateQuadkeyGridProcessingAlgorithm(QgsProcessingAlgorithm):
+    """
+    Processing algorithm to create a Quadkey grid inside an extent.
+    Takes extent and zoom level as inputs. Creates a polygon vector layer with quadkey grid cells.
+    """
+
+    EXTENT = 'EXTENT'
+    ZOOM_LEVEL = 'ZOOM_LEVEL'
+    OUTPUT = 'OUTPUT'
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return CreateQuadkeyGridProcessingAlgorithm()
+
+    def name(self):
+        return 'createquadkeygrid'
+
+    def displayName(self):
+        return self.tr('Create Quadkey grid')
+
+    def shortHelpString(self):
+        return self.tr('Creates a vector layer with a Quadkey grid at given zoom level. '
+                       'The grid cells are generated as polygons, with their Quadkey stored in the attribute table.')
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(QgsProcessingParameterExtent(self.EXTENT, self.tr('Extent')))
+        self.addParameter(QgsProcessingParameterNumber(
+            self.ZOOM_LEVEL,
+            self.tr('Zoom Level'),
+            type=QgsProcessingParameterNumber.Integer,
+            minValue=0,
+            maxValue=23
+        ))
+        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+        extent = self.parameterAsExtentGeometry(parameters, self.EXTENT, context, QgsCoordinateReferenceSystem('EPSG:4326'))
+        zoom_level = self.parameterAsInt(parameters, self.ZOOM_LEVEL, context)
+
+        fields = QgsFields()
+        fields.append(QgsField('quadkey', QVariant.String))
+
+        (sink, dest_id) = self.parameterAsSink(
+            parameters, self.OUTPUT, context, fields, QgsWkbTypes.Polygon, QgsCoordinateReferenceSystem('EPSG:4326')
+        )
+
+        if sink is None:
+            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
+
+        bbox = extent.boundingBox()
+        west, south, east, north = bbox.xMinimum(), bbox.yMinimum(), bbox.xMaximum(), bbox.yMaximum()
+
+        tiles = list(mercantile.tiles(west, south, east, north, zoom_level))
+        total = 100.0 / len(tiles) if tiles else 0
+
+        for current, tile in enumerate(tiles):
+            if feedback.isCanceled():
+                break
+
+            quadkey = mercantile.quadkey(tile)
+            bounds = mercantile.bounds(tile)
+            
+            rect = QgsRectangle(bounds.west, bounds.south, bounds.east, bounds.north)
+            geometry = QgsGeometry.fromRect(rect)
+
+            f = QgsFeature()
+            f.setGeometry(geometry)
+            f.setAttributes([quadkey])
+            sink.addFeature(f, QgsFeatureSink.FastInsert)
+
+            feedback.setProgress(int(current * total))
+
+        return {self.OUTPUT: dest_id}
+
+
+class CreateQuadkeyGridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
+    """
+    Processing algorithm to create a Quadkey grid inside polygons.
+    Takes vector layer and zoom level as inputs.
+    Evaluates Quadkey grid cells at given zoom level inside polygons of input layer.
+    Cells are considered to be 'inside' if their centroid is contained by a polygon.
+    Generates the grid cells as polygons with their Quadkey in the attribute table.
+    Outputs result as a polygon vector layer.
+    """
+
+    INPUT = 'INPUT'
+    ZOOM_LEVEL = 'ZOOM_LEVEL'
+    OUTPUT = 'OUTPUT'
+
+    def tr(self, string):
+        return QCoreApplication.translate('Processing', string)
+
+    def createInstance(self):
+        return CreateQuadkeyGridInsidePolygonsProcessingAlgorithm()
+
+    def name(self):
+        return 'createquadkeygridinsidepolygons'
+
+    def displayName(self):
+        return self.tr('Create Quadkey grid inside polygons')
+
+    def shortHelpString(self):
+        helpString = (
+            'Creates a vector layer with a Quadkey grid at given zoom level. '
+            'The grid cells are generated as polygons, with their Quadkey stored in the attribute table.\n'
+            'This algorithm only generates grid cells that are inside the polygons of input layer. '
+            'A grid cell is considered to be <i>inside</i> if its centroid is contained by a polygon.\n'
+            '<i>Note: Input polygons are evaluated in WGS84 (EPSG:4326) by the algorithm, '
+            'reprojecting them if necessary. '
+            'It may produce erratic results for polygons that cross the WGS84 CRS boundary. '
+            '(e.g. in polar regions or around the 180th meridian)</i>'
+        )
+        return self.tr(helpString)
+
+    def initAlgorithm(self, config=None):
+        self.addParameter(QgsProcessingParameterFeatureSource(
+            self.INPUT,
+            self.tr('Input layer'),
+            [QgsProcessing.TypeVectorPolygon]
+        ))
+        self.addParameter(QgsProcessingParameterNumber(
+            self.ZOOM_LEVEL,
+            self.tr('Zoom Level'),
+            type=QgsProcessingParameterNumber.Integer,
+            minValue=0,
+            maxValue=23
+        ))
+        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr('Output layer')))
+
+    def processAlgorithm(self, parameters, context, feedback):
+        source = self.parameterAsSource(parameters, self.INPUT, context)
+        zoom_level = self.parameterAsInt(parameters, self.ZOOM_LEVEL, context)
+
+        if source is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))
+
+        fields = QgsFields()
+        fields.append(QgsField('quadkey', QVariant.String))
+
+        (sink, dest_id) = self.parameterAsSink(
+            parameters, self.OUTPUT, context, fields, QgsWkbTypes.Polygon, QgsCoordinateReferenceSystem('EPSG:4326')
+        )
+
+        if sink is None:
+            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
+
+        featureRequestFilter = QgsFeatureRequest().setDestinationCrs(
+            QgsCoordinateReferenceSystem('EPSG:4326'),
+            QgsCoordinateTransformContext()
+        )
+
+        if source.sourceCrs() != featureRequestFilter.destinationCrs():
+            feedback.pushWarning('Input source is not in WGS84 projection. On the fly reprojection will be used.')
+
+        feedback.pushInfo('Looking up grid cell quadkeys...')
+
+        quadkeySet = set()
+        for geom in singlepartGeometries(source.getFeatures(request=featureRequestFilter)):
+            bbox = geom.boundingBox()
+            west, south, east, north = bbox.xMinimum(), bbox.yMinimum(), bbox.xMaximum(), bbox.yMaximum()
+            
+            tiles = list(mercantile.tiles(west, south, east, north, zoom_level))
+            for tile in tiles:
+                quadkey = mercantile.quadkey(tile)
+                bounds = mercantile.bounds(tile)
+                centroid = QgsPointXY((bounds.west + bounds.east) / 2, (bounds.south + bounds.north) / 2)
+                if geom.contains(centroid):
+                    quadkeySet.add(quadkey)
+
+            if feedback.isCanceled():
+                feedback.pushInfo('Processing canceled.')
+                break
+        else:
+            feedback.pushInfo(f'{len(quadkeySet)} grid cells to create.')
+
+        feedback.pushInfo('Generating grid cells...')
+
+        progressPerCell = 100.0 / len(quadkeySet) if len(quadkeySet) > 0 else 0
+        currentProgress = 0
+        lastProgress = 0
+
+        feature = QgsFeature(fields)
+
+        for i, quadkey in enumerate(quadkeySet):
+            tile = mercantile.quadkey_to_tile(quadkey)
+            bounds = mercantile.bounds(tile)
+            
+            rect = QgsRectangle(bounds.west, bounds.south, bounds.east, bounds.north)
+            geometry = QgsGeometry.fromRect(rect)
+
+            feature.setGeometry(geometry)
+            feature.setAttribute('quadkey', quadkey)
+            sink.addFeature(feature, QgsFeatureSink.FastInsert)
+
+            currentProgress = int(i * progressPerCell)
+            if currentProgress != lastProgress:
+                lastProgress = currentProgress
+                feedback.setProgress(lastProgress)
+
+            if feedback.isCanceled():
+                feedback.pushInfo('Processing canceled.')
+                break
+        else:
+            feedback.pushInfo('Done.')
 
         return {self.OUTPUT: dest_id}
 
