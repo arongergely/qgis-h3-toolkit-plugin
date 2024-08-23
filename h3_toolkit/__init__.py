@@ -112,6 +112,16 @@ class H3Toolkit:
             <p>
               <b>NOTE: The plugin is tested with h3 version the 3.7.x. However it should work with all 3.x versions of h3</b>
             </p>
+            You will also need to install the Mercantile package (<a href="https://github.com/geospatial-jeff/mercantile">https://github.com/geospatial-jeff/mercantile</a>).
+
+            To ensure it is installed in your QGIS Python environment, you can open terminal and type:
+
+            /Applications/QGIS.app/Contents/MacOS/bin/python3.9 -m pip install mercantile
+
+            Note: you need to find the python path of your QGIS Python environment in your system.
+
+            <p>
+            </p>
             <p>
               Once the package install completed, please  reload the plugin (or restart QGIS) to start using it.<br><br>
               Enjoy!
