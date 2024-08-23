@@ -28,7 +28,7 @@ def classFactory(iface):
 
 
 class H3Toolkit:
-    pluginName = 'H3 Toolkit'
+    pluginName = 'H3 Quadkey Toolkit'
 
     def __init__(self, iface, is_h3lib_present=IS_H3_PRESENT):
         self.iface = iface
