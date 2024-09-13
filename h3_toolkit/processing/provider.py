@@ -9,8 +9,11 @@ from .algorithms import (
     CountPointsOnH3GridProcessingAlgorithm
 )
 
-
 class H3Provider(QgsProcessingProvider):
+    def __init__(self, iconPath, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.iconPath = iconPath
+
     def loadAlgorithms(self, *args, **kwargs):
         self.addAlgorithm(CreateH3GridProcessingAlgorithm())
         self.addAlgorithm(CreateH3GridInsidePolygonsProcessingAlgorithm())
@@ -22,6 +25,8 @@ class H3Provider(QgsProcessingProvider):
     def name(self, *args, **kwargs):
         return 'H3'
 
+    def svgIconPath(self):
+        return self.iconPath
+
     def icon(self):
-        #TODO: OS agnostic path to the logo. (does not work for Windows)
-        return QIcon(os.path.join(os.path.dirname(__file__), '../h3_logo.svg'))
+        return QIcon(self.svgIconPath())

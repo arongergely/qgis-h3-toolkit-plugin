@@ -29,6 +29,7 @@ def classFactory(iface):
 
 class H3Toolkit:
     pluginName = 'H3 Toolkit'
+    pluginIconPath = os.path.join(os.path.dirname(__file__), 'h3_logo.svg')
 
     def __init__(self, iface, is_h3lib_present=IS_H3_PRESENT):
         self.iface = iface
@@ -38,7 +39,8 @@ class H3Toolkit:
         self.h3LibVersions = getVersionH3Bindings() if self.isH3LibPresent else None
 
     def initProcessing(self):
-        self.provider = H3Provider()
+        self.provider = H3Provider(self.pluginIconPath)
+        print(self.pluginIconPath)
         QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
