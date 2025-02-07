@@ -26,7 +26,7 @@ from qgis.core import (
 )
 from qgis import processing
 
-from .utilities import singlepartGeometries
+from .utilities import yield_small_singleparts
 
 
 class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
@@ -250,7 +250,10 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo('Looking up grid cell indexes...')
 
         hexIndexSet = set()
-        for geom in singlepartGeometries(source.getFeatures(request=featureRequestFilter)):
+        # looping on geometries, yielding them as single-part, with any overly-large geoms split into two.
+        # The latter is to avoid h3.polyfill() inverting geom's domain along lon,
+        # when geom's length along lon > 180  (WGS84)
+        for geom in yield_small_singleparts(source.getFeatures(request=featureRequestFilter)):
             geoJsonDict = json.loads(geom.asJson())
             newSet = h3.polyfill(geoJsonDict, resolution, geo_json_conformant=True)
             hexIndexSet.update(newSet)
