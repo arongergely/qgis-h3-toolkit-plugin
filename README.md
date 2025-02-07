@@ -42,6 +42,20 @@ Assuming a Linux development environment:
    ln -s /your/path/to/qgis-h3-toolkit-plugin/h3_toolkit h3_toolkit
    ```
 
+  Example for flatpak installed QGIS:
+
+    # clone repository
+    cd ~/dev
+    git clone https://github.com/arongergely/qgis-h3-toolkit-plugin.git
+    
+    # grant user filesystem access to the flatpak
+    flatpak override --user --filesystem=home org.qgis.qgis
+
+    # symlink the development directory
+    ln -s ~/dev/qgis-h3-toolkit-plugin/h3_toolkit \
+      ~/.var/app/org.qgis.qgis/data/QGIS/QGIS3/profiles/default/python/plugins/h3-toolkit
+
+
 #### How to make a release
 Simply zip up the `h3_toolkit` directory. The .zip file is then ready for [install from ZIP](https://docs.qgis.org/3.22/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab)
 
