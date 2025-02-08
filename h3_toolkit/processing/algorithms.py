@@ -571,7 +571,7 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     # def helpUrl(self):
     #    return
 
-    def initAlgorithm(self, parameters, context=None):
+    def initAlgorithm(self, config=None):
         #extentParam = QgsProcessingParameterExtent(self.EXTENT, self.tr('Extent'))
         pointlayerParam = QgsProcessingParameterFeatureSource(
             self.INPUT,
