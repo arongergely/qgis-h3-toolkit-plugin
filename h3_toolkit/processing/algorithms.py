@@ -263,7 +263,16 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
                 feedback.pushInfo('Processing canceled.')
                 break
         else:
-            feedback.pushInfo(f'{len(hexIndexSet)} grid cells to create.')
+            hexIndexSetLenth = len(hexIndexSet)
+            if hexIndexSetLenth > 0:
+                feedback.pushInfo(f'{hexIndexSetLenth} grid cells to create.')
+            else:
+                feedback.pushWarning(
+                    '0 grid cells to create. '
+                    'You may need to enlarge the input area or increase the resolution.'
+                )
+                feedback.pushWarning('Empty Output.')
+                return {self.OUTPUT: dest_id}
 
         # -----------------------------------------
         # STEP 2. Generate the grid cell geometries
