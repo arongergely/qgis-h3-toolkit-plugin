@@ -269,7 +269,7 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
             else:
                 feedback.pushWarning(
                     '0 grid cells to create. '
-                    'You may need to enlarge the input area increase the resolution.'
+                    'You may need to enlarge the input area or increase the resolution.'
                 )
                 feedback.pushWarning('Empty Output.')
                 return {self.OUTPUT: dest_id}
