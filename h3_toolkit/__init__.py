@@ -112,7 +112,7 @@ class H3Toolkit:
 
             <p>If that does not work, please refer to the QGIS documentation on how to install Python packages, and the H3 documentation: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a></p>
             <p>
-              <b>NOTE: The plugin is tested with h3 version v4.1.x. However it should work with all 4.x versions of h3</b>
+              <b>NOTE: The plugin is tested with h3 version v3.7.7. However it should work with all 3.x versions of h3</b>
             </p>
             <p>
               Once the package install completed, please reload the plugin (or restart QGIS) to start using it.<br><br>
