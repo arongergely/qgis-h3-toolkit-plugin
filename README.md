@@ -50,7 +50,13 @@ Assuming a Linux development environment:
     
     # grant user filesystem access to the flatpak
     flatpak override --user --filesystem=home org.qgis.qgis
-
+    
+    # make sure to run the clean install once, so it creates the app config directories.
+    flatpak run org.qgis.qgis
+    
+    # ensure the following path exists. Create missing folders when necessary:
+    # ~/.var/app/org.qgis.qgis/data/QGIS/QGIS3/profiles/default/python/plugins
+    
     # symlink the development directory
     ln -s ~/dev/qgis-h3-toolkit-plugin/h3_toolkit \
       ~/.var/app/org.qgis.qgis/data/QGIS/QGIS3/profiles/default/python/plugins/h3-toolkit
