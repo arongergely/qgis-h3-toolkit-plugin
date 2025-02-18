@@ -65,15 +65,34 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
     #    return 'gridcreation'
 
     def shortHelpString(self):
-        helpString = (  # odd multiline string definition to prevent unintentional newline chars
-            'Creates a vector layer with an H3 grid at given resolution. '
-            'The grid cells are generated as polygons, with their H3 index stored in the attribute table.\n'
-            'This algorithm only generates grid cells that are inside the polygons of input layer. '
-            'A grid cells is considered to be <i>inside</i> if its centroid is contained by a polygon.\n'
-            '<i>Note: Input polygons are evaluated in WGS84 (EPSG:4326) by the algorithm, '
-            'reprojecting them if necessary. '
-            'It may produce erratic results for polygons that cross the WGS84 CRS boundary. '
-            '(e.g. in polar regions or around the 180th meridian)</i>'
+        helpString = (
+            'Creates H3 grid cells that fit within the input polygons at a specified resolution.<br><br>'
+            '<b>Input:</b> Polygon layer (automatically transformed to WGS84 if needed)<br>'
+            '<b>Resolution:</b> H3 grid density level (0=largest, 15=smallest)<br>'
+            '<b>Output:</b> Polygon layer with H3 indexes as attributes<br><br>'
+            'Grid cells are considered <i>inside</i> a polygon if their centroid falls within it.<br><br>'
+            '<b>Resolution Reference Table:</b><br>'
+            '<table>'
+            '  <tr><th>Level</th><th>Avg Edge Length</th></tr>'
+            '  <tr><td>0</td><td>1107 km</td></tr>'
+            '  <tr><td>1</td><td>418 km</td></tr>'
+            '  <tr><td>2</td><td>158 km</td></tr>'
+            '  <tr><td>3</td><td>59.8 km</td></tr>'
+            '  <tr><td>4</td><td>22.6 km</td></tr>'
+            '  <tr><td>5</td><td>8.54 km</td></tr>'
+            '  <tr><td>6</td><td>3.23 km</td></tr>'
+            '  <tr><td>7</td><td>1.22 km</td></tr>'
+            '  <tr><td>8</td><td>461 m</td></tr>'
+            '  <tr><td>9</td><td>174 m</td></tr>'
+            '  <tr><td>10</td><td>65.9 m</td></tr>'
+            '  <tr><td>11</td><td>24.9 m</td></tr>'
+            '  <tr><td>12</td><td>9.42 m</td></tr>'
+            '  <tr><td>13</td><td>3.56 m</td></tr>'
+            '  <tr><td>14</td><td>1.35 m</td></tr>'
+            '  <tr><td>15</td><td>0.51 m</td></tr>'
+            '</table><br>'
+            '<b>Note:</b> Input layers are automatically transformed to WGS84 (EPSG:4326). '
+            'Results may be inaccurate for features crossing CRS boundaries (e.g., polar regions or 180th meridian).'
         )
         return self.tr(helpString)
 
@@ -353,14 +372,14 @@ class CreateH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     #    return 'gridcreation'
 
     def shortHelpString(self):
-        helpString = (  # odd multiline string definition to prevent unintentional newline chars
-            'Creates a vector layer with an H3 grid at given resolution. '
-            'The grid cells are generated as polygons, with their H3 index stored in the attribute table.\n'
-            'This algorithm only generates grid cells inside given extent. '
-            'A grid cells is considered to be <i>inside</i> if its centroid is within the extent.\n'
-            '<i>Note: The extent is evaluated in WGS84 (EPSG:4326) by the algorithm, reprojecting it if necessary. '
-            'It may produce erratic results for extents that cross the WGS84 CRS boundary. '
-            '(e.g. in polar regions or around the 180th meridian)</i>'
+        helpString = (
+            'Generates H3 grid cells within a specified geographic extent at a chosen resolution.<br><br>'
+            '<b>Input Extent:</b> Geographic area to cover (auto-detected from project or manually specified)<br>'
+            '<b>Resolution:</b> H3 grid density level (0=largest, 15=smallest)<br>'
+            '<b>Output:</b> Polygon layer with H3 indexes as attributes<br><br>'
+            'This tool internally creates a temporary polygon from the input extent and uses the same '
+            'processing logic as the <i>Create H3 Grid Inside Polygons</i> tool.<br><br>'
+            'See resolution reference table in <i>Create H3 Grid Inside Polygons</i> help for detailed cell sizes.'
         )
         return self.tr(helpString)
 
@@ -545,10 +564,15 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
     #    return 'gridcreation'
 
     def shortHelpString(self):
-        helpString = (  # odd multiline string definition to prevent unintentional newline chars
-            'Counts point features within H3 grid cells at given resolution. '
-            'The cells are generated as polygons, with their H3 index and point counts stored in the attribute table.\n'
-            '<i>Note: CRS of input is assumed to be in (or be tranformable to) WGS84 (EPSG:4326). '
+        helpString = (
+            'Aggregates point features into H3 grid cells and counts points per cell.<br><br>'
+            '<b>Input:</b> Point layer (automatically transformed to WGS84 if needed)<br>'
+            '<b>Resolution:</b> H3 grid density level (0=largest, 15=smallest)<br>'
+            '<b>Output:</b> Polygon layer of H3 index geometry with point counts as attributes<br><br>'
+            'Grid cells are generated where points exist. Each cell shows total points within its boundaries.<br><br>'
+            'See resolution reference table in <i>Create H3 Grid Inside Polygons</i> help for detailed cell sizes.<br><br>'
+            '<b>Note:</b> Input points are transformed to WGS84 (EPSG:4326). '
+            'Results may be inaccurate for features crossing CRS boundaries.'
         )
         return self.tr(helpString)
 

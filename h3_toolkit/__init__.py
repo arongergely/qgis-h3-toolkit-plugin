@@ -105,17 +105,17 @@ class H3Toolkit:
         windowTitle = 'H3 Library Install Help'
         helpString = '''
             <p>
-              To start using the plugin you have to install the H3 Library for Python (<a href="https://h3geo.org/">https://h3geo.org/</a>).<br><br>
-              It is available as the Python package 'h3', which has to be installed into the Python environment of QGIS.
+              To start using the plugin you have to install the H3 Library for Python (<a href="https://h3geo.org/">https://h3geo.org/</a>) available as the PyPi package 'h3'.
+            </p>
+            <p>To install h3 in the Python environment of QGIS, try the following command within the <a href="https://docs.qgis.org/3.34/en/docs/user_manual/plugins/python_console.html">QGIS Python Console</a>:</p>
+            <pre>!python -m pip install 'h3<4.0'</pre>
+
+            <p>If that does not work, please refer to the QGIS documentation on how to install Python packages, and the H3 documentation: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a></p>
+            <p>
+              <b>NOTE: The plugin is tested with h3 version v3.7.7. However it should work with all 3.x versions of h3</b>
             </p>
             <p>
-              Please refer to the H3 documentation on how to install: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a>
-            </p>
-            <p>
-              <b>NOTE: The plugin is tested with h3 version the 3.7.x. However it should work with all 3.x versions of h3</b>
-            </p>
-            <p>
-              Once the package install completed, please  reload the plugin (or restart QGIS) to start using it.<br><br>
+              Once the package install completed, please reload the plugin (or restart QGIS) to start using it.<br><br>
               Enjoy!
             </p>
             '''
