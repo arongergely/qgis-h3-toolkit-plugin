@@ -61,6 +61,11 @@ Assuming a Linux development environment:
     ln -s ~/dev/qgis-h3-toolkit-plugin/h3_toolkit \
       ~/.var/app/org.qgis.qgis/data/QGIS/QGIS3/profiles/default/python/plugins/h3-toolkit
 
+    # install pip for python inside the flatpak
+    flatpak run --command=python3 org.qgis.qgis -m ensurepip --upgrade --user
+
+    # now run qgis, open its python condole and execute this command:
+    !python -m pip install 'h3<4.0'
 
 #### How to make a release
 Simply zip up the `h3_toolkit` directory. The .zip file is then ready for [install from ZIP](https://docs.qgis.org/3.22/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab)
