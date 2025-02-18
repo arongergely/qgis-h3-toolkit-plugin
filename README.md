@@ -64,7 +64,7 @@ Assuming a Linux development environment:
     # install pip for python inside the flatpak
     flatpak run --command=python3 org.qgis.qgis -m ensurepip --upgrade --user
 
-    # now run qgis, open its python condole and execute this command:
+    # now run qgis, open its python console and execute this command:
     !python -m pip install 'h3<4.0'
 
 #### How to make a release
