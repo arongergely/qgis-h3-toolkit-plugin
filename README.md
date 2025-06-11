@@ -30,7 +30,7 @@ The [QPIP plugin](https://plugins.qgis.org/plugins/a00_qpip/) is a graphical pyt
 1. Install it alongside  H3 Toolkit.  
 2. If it has not prompted you, the reload H3 Toolkit or restart QGIS.
 3. Install the dependencies with a click of a button when prompted by QPIP
-4. H3 toolkit should load fine now. If not you may nead to reload / restart QGIS one more time.
+4. H3 toolkit should load fine now. If not, you may need to reload / restart QGIS one more time.
 
 QPIP is still in early development. Hence it comes with limitations and possibly including bugs. You are encouraged read up on it on their [GitHub](https://github.com/opengisch/qpip) before using.
 
