@@ -18,7 +18,7 @@ You can also install via zipfile (If you need for some reason):
 The plugin depends on the `h3` python package, which you would have to install yourself into the Python environment of QGIS.
 At startup the plugin detects if `h3` is missing from the python environment and offers basic guidance on how to install.
 
-**NOTE: The plugin is tested with `h3` version `3.7.x` but in principle should work with other `3.x` versions.**
+**NOTE: The plugin is tested with `h3` version `4.2.2` but supports all `4.x` and `3.x` versions.**
 
 Please see [H3 Installation](https://h3geo.org/docs/installation) on how to install.
 
