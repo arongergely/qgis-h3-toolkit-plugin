@@ -273,27 +273,8 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
         # The latter is to avoid h3.polyfill() inverting geom's domain along lon,
         # when geom's length along lon > 180  (WGS84)
         for geom in yield_small_singleparts(source.getFeatures(request=featureRequestFilter)):
-            """
-            polys = []
-            if geom.isMultipart():
-                for part in geom.asMultiPolygon():
-                    polypart = []
-                    for ring in part:
-                        polypart.append([(p.y(), p.x()) for p in ring])
-                    polys.append(h3.LatLngPoly(*polypart))
-                poly_obj = h3.LatLngMultiPoly(*polys)
-            else:
-                for ring in geom.asPolygon():
-                    polys.append([(p.y(), p.x()) for p in ring])
-                poly_obj = h3.LatLngPoly(*polys)
-
-            newSet = h3.h3shape_to_cells(poly_obj, resolution)
-            """
-            polys = []
-            for ring in geom.asPolygon():
-                polys.append([(p.y(), p.x()) for p in ring])
-            poly_obj = h3.LatLngPoly(*polys)
-            newSet = h3.h3shape_to_cells(poly_obj, resolution)
+            geoJsonDict = json.loads(geom.asJson())
+            newSet = h3.polyfill(geoJsonDict, resolution, geo_json_conformant=True)
             hexIndexSet.update(newSet)
 
             # Stop if cancel button has been clicked
@@ -327,7 +308,7 @@ class CreateH3GridInsidePolygonsProcessingAlgorithm(QgsProcessingAlgorithm):
 
         for i, index in enumerate(hexIndexSet):
             # create hex geometry
-            hexVertexCoords = h3.cell_to_boundary(index)
+            hexVertexCoords = h3.h3_to_geo_boundary(index)
             hexGeometry = QgsGeometry.fromPolygonXY([[QgsPointXY(lon, lat) for lat, lon in hexVertexCoords], ])
 
             # create hex feature, add to sink
@@ -759,7 +740,7 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
         for f in pointSource.getFeatures():
             point = f.geometry().asPoint()
             point_wgs84 = transformer.transform(point)
-            idx = h3.latlng_to_cell(point_wgs84.y(), point_wgs84.x(), resolution)
+            idx = h3.geo_to_h3(point_wgs84.y(), point_wgs84.x(), resolution)
             h3Indexed.append(idx)
 
         # ----------------------------------
@@ -775,7 +756,7 @@ class CountPointsOnH3GridProcessingAlgorithm(QgsProcessingAlgorithm):
         # Set up template feature
         feature = QgsFeature(fields)
         for k, v in counts.items():
-            hexVertexCoords = h3.cell_to_boundary(k)
+            hexVertexCoords = h3.h3_to_geo_boundary(k)
             hexGeometry = QgsGeometry.fromPolygonXY([[QgsPointXY(lon, lat) for lat, lon in hexVertexCoords], ])
             # create hex feature, add to sink
             feature.setGeometry(hexGeometry)
