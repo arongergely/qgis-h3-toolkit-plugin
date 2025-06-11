@@ -5,7 +5,7 @@ about=This plugin adds an H3 processing provider to QGIS, with tools that let us
     NOTE: The official H3 Library ('h3' Python package) is not shipped with this plugin and has to be installed separately. The plugin detects if the package is missing and offers basic guidance on how to install.
 tags=H3, hexagon, grid, grids
 
-version=0.1.0
+version=0.2.0
 qgisMinimumVersion=3.22
 qgisMaximumVersion=3.99
 
@@ -19,3 +19,17 @@ tracker=https://github.com/arongergely/qgis-h3-toolkit-plugin/issues
 hasProcessingProvider=yes
 icon=h3_logo.svg
 experimental=False
+
+changelog=
+    0.2.0
+    - Add support for dependency management via QPIP plugin
+    - Add h3 v4.x support
+    - Add warning when output grid is empty
+    - Improved text: installation notes, algorithm usage help (Thanks @maphew)
+    - Fix generating large grid extents, where region of interest was inverted along x axis.
+    - Fix H3 icon not showing on Windows
+    - New processing algorithm: Count points on H3 Grid
+    - Improved h3 dependency detection (Thanks @jf-geo)
+
+    0.1.0
+    - First release
