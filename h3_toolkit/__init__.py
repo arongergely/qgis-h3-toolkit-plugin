@@ -14,11 +14,17 @@ from qgis.core import Qgis, QgsApplication
 from PyQt5.QtWidgets import QAction, QMessageBox, QPushButton
 
 # Check if h3 dependency is installed, handle gracefully if not
-from .h3_dependency_guard import IS_H3_PRESENT
+from .h3_dependency_guard import IS_H3_PRESENT, H3_VERSION
 
 if IS_H3_PRESENT:
-    from .processing.provider import H3Provider
-    from .processing.utilities import getVersionH3Bindings
+    if H3_VERSION.startswith('4'):
+        from .processing.provider import H3Provider
+        from .processing.utilities import getVersionH3Bindings
+    elif H3_VERSION.startswith('3'):
+        from .processing.v3.provider import H3Provider
+        from .processing.v3.utilities import getVersionH3Bindings
+    else:
+        raise RuntimeError(f'Unsupported H3 lib version: \'{H3_VERSION}\'. Supported versions: v4.x or v3.x')
 else:
     pass
 
