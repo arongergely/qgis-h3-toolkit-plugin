@@ -18,21 +18,21 @@ The plugin is tested with `h3` version `4.2.2` but supports all `4.x` and `3.x` 
 
 **WARNING: While `h3` is a small package without other Python sub-dependencies, managing dependencies is your responsibility and comes at your own risk. We strive to make it easier, but this does not place any liability on us in case you break your python environment. You are in charge, not the plugin. Be careful and do your due diligence before attempting the below.**
 
-Unfortunately the process depends on your system and QGIS setup.
+Unfortunately, the process depends on your system and QGIS setup.
 
 #### via a python package manager 
 Install using  `pip` (or `conda` if you happen to use a QGIS conda install). 
 A basic command to get you started: `pip install h3>=3.0.0`
-Note you may need to use `--break-system-packages` as QGIS uses system-wide packages on some systems, e.g on Ubuntu Linux. 
+Note you may need to use `--break-system-packages` as QGIS uses system-wide packages on some systems, e.g., on Ubuntu Linux. 
 
 #### via QPIP 
 The [QPIP plugin](https://plugins.qgis.org/plugins/a00_qpip/) is a graphical python dependency manager.
 1. Install it alongside  H3 Toolkit.  
-2. If it has not prompted you, the reload H3 Toolkit or restart QGIS.
+2. If it has not prompted you, then reload H3 Toolkit or restart QGIS.
 3. Install the dependencies with a click of a button when prompted by QPIP
 4. H3 toolkit should load fine now. If not, you may need to reload / restart QGIS one more time.
 
-QPIP is still in early development. Hence it comes with limitations and possibly including bugs. You are encouraged read up on it on their [GitHub](https://github.com/opengisch/qpip) before using.
+QPIP is still in early development. It comes with limitations and possibly including bugs. You are encouraged to read up on it on their [GitHub](https://github.com/opengisch/qpip) beforehand.
 
 ## How to use
 The plugin registers an `H3` processing provider, making the tools available in the Processing Toolbox:
