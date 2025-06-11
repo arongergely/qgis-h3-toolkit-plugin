@@ -111,14 +111,15 @@ class H3Toolkit:
         windowTitle = 'H3 Library Install Help'
         helpString = '''
             <p>
-              To start using the plugin you have to install the H3 Library for Python (<a href="https://h3geo.org/">https://h3geo.org/</a>) available as the PyPi package 'h3'.
+              To start using the plugin you have to install the H3 Library for Python (<a href="https://h3geo.org/">https://h3geo.org/</a>) available as the PyPi package 'h3'. 
+              The plugin is tested with h3 version v4.2.2. However it supports all v4.x and v3.x versions of h3.  
             </p>
             <p>To install h3 in the Python environment of QGIS, try the following command within the <a href="https://docs.qgis.org/3.34/en/docs/user_manual/plugins/python_console.html">QGIS Python Console</a>:</p>
             <pre>!python -m pip install 'h3&gt;=3.0.0'</pre>
-
-            <p>If that does not work, please refer to the QGIS documentation on how to install Python packages, and the H3 documentation: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a></p>
+            <p> Alternatively you can try the (<a href="https://plugins.qgis.org/plugins/a00_qpip/">QPIP plugin</a>) to install it with a click of a button.<p>
+            <p>If the above does not work, please refer to the QGIS documentation on how to install Python packages, and the H3 documentation: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a></p>
             <p>
-              <b>NOTE: The plugin is tested with h3 version v4.2.2. However it supports all v4.x and v3.x versions of h3</b>
+              <b>WARNING: While h3 is a small package without other Python sub-dependencies, managing dependencies is your responsibility and comes at your own risk. We strive to make it easier, but this does not place any liability on us in case you break your environment. You are in charge, not the plugin. Please be careful and do your due diligence before attempting the above.</b>
             </p>
             <p>
               Once the package install completed, please reload the plugin (or restart QGIS) to start using it.<br><br>
