@@ -8,6 +8,7 @@ tags=H3, hexagon, grid, grids
 version=0.2.0
 qgisMinimumVersion=3.22
 qgisMaximumVersion=3.99
+supportsQt6=yes
 
 author=Aron Gergely
 
