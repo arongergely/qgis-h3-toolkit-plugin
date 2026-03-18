@@ -11,7 +11,8 @@
 import os
 
 from qgis.core import Qgis, QgsApplication
-from PyQt5.QtWidgets import QAction, QMessageBox, QPushButton
+from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
+from qgis.PyQt.QtGui import QAction
 
 # Check if h3 dependency is installed, handle gracefully if not
 from .h3_dependency_guard import IS_H3_PRESENT, H3_VERSION
