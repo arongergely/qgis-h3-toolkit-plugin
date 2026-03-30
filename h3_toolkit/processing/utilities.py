@@ -1,3 +1,4 @@
+import h3
 from typing import Iterator
 
 from qgis.core import (
@@ -5,7 +6,6 @@ from qgis.core import (
     QgsPointXY,
     QgsFeatureIterator
 )
-import h3
 
 
 def yield_small_singleparts(feature_iterator: QgsFeatureIterator) -> Iterator[QgsGeometry]:
@@ -15,7 +15,6 @@ def yield_small_polygons(iterator: Iterator[QgsGeometry]) -> Iterator[QgsGeometr
     """
     Generator function. Takes a QgsFeatureIterator and yield its features, splitting them
     if their length along x is larger than 180. The split geometries are yielded one-by-one as single part.
-
     Used for splitting large polygons for the h3 lib's `polyfill`, to avoid it inverting the extent.
     """
     for geom in iterator:
@@ -26,8 +25,8 @@ def yield_small_polygons(iterator: Iterator[QgsGeometry]) -> Iterator[QgsGeometr
                 QgsPointXY(bbox.xMinimum() + x_diff / 2, -90),
                 QgsPointXY(bbox.xMinimum() + x_diff / 2, 90)
             ]
-            op_result, split_geoms_list, topo_list = geom.splitGeometry(splitter_line, False, False)
-            for g in split_geoms_list:
+            result, new_geometries_list, _ = geom.splitGeometry(splitLine=splitter_line, topological=False, splitFeature=False)
+            for g in new_geometries_list:
                 yield g
         else:
             yield geom
@@ -45,6 +44,16 @@ def yield_singleparts(feature_iterator: QgsFeatureIterator) -> Iterator[QgsGeome
         else:
             yield geom
 
+
+def cell_to_qgs_geometry(h3_index: str) -> QgsGeometry:
+    """
+    Convert an H3 cell index to a QgsGeometry polygon (WGS84).
+    """
+    coords = h3.cell_to_boundary(h3_index)
+    geom = QgsGeometry.fromPolygonXY(
+        [[QgsPointXY(lon, lat) for lat, lon in coords]]
+    )
+    return geom
 
 def getVersionH3Bindings():
     return h3.versions()

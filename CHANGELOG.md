@@ -1,3 +1,6 @@
+0.3.0
+- Add support for QGIS v4.x
+
 0.2.0
 - Add support for dependency management via QPIP plugin
 - Add h3 v4.x support
