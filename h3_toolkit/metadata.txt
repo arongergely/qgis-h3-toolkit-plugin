@@ -6,7 +6,7 @@ about=This plugin adds an H3 processing provider to QGIS, with tools that let us
 tags=H3, hexagon, grid, grids
 
 version=0.3.0
-qgisMinimumVersion=3.22
+qgisMinimumVersion=3.44
 qgisMaximumVersion=4.99
 
 author=Aron Gergely

@@ -47,7 +47,7 @@ class H3Toolkit:
 
     def initProcessing(self):
         self.provider = H3Provider(self.pluginIconPath)
-        print(self.pluginIconPath)
+
         QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
