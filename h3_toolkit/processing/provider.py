@@ -33,5 +33,5 @@ class H3Provider(QgsProcessingProvider):
     def svgIconPath(self):
         return self._iconPath
 
-    def svgIconPath(self):
-        return self._iconPath
+    def icon(self):
+        return self._icon
